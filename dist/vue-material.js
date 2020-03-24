@@ -1,6 +1,6 @@
 /*!
- * vue-material v1.0.0-beta-10.2
- * Made with <3 by marcosmoura 2019
+ * vue-material v1.0.0-beta-11
+ * Made with <3 by marcosmoura 2020
  * Released under the MIT License.
  */
 (function webpackUniversalModuleDefinition(root, factory) {
@@ -4966,6 +4966,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 //
 //
 //
+//
 
 var _MdComponent = __webpack_require__(1);
 
@@ -5008,6 +5009,10 @@ exports.default = new _MdComponent2.default({
     }, (0, _MdPropValidator2.default)('md-input-type', ['email', 'number', 'password', 'search', 'tel', 'text', 'url'])),
     mdPlaceholder: [String, Number],
     mdStatic: Boolean,
+    mdAutoInsert: {
+      type: Boolean,
+      default: false
+    },
     mdLimit: Number,
     mdCheckDuplicated: {
       type: Boolean,
@@ -5087,6 +5092,13 @@ exports.default = new _MdComponent2.default({
         this.checkDuplicated();
       } else {
         this.duplicatedChip = null;
+      }
+    },
+    handleFocusOut: function handleFocusOut(_ref2) {
+      var target = _ref2.target;
+
+      if (this.mdAutoInsert) {
+        this.insertChip(target);
       }
     },
     checkDuplicated: function checkDuplicated() {
@@ -9571,7 +9583,7 @@ exports.default = new _MdComponent2.default({
         this.MdMenu.bodyClickObserver = new _MdObserveEvent2.default(document.body, 'click', function ($event) {
           $event.stopPropagation();
 
-          if (!_this3.isMenu($event) && (_this3.MdMenu.closeOnClick || _this3.isBackdropExpectMenu($event))) {
+          if (!_this3.isMenuContentEl($event) && (_this3.MdMenu.closeOnClick || _this3.isBackdropExpectMenu($event))) {
             _this3.MdMenu.active = false;
             _this3.MdMenu.bodyClickObserver.destroy();
             _this3.MdMenu.windowResizeObserver.destroy();
@@ -19145,7 +19157,8 @@ var render = function() {
                   }
                   return _vm.handleBackRemove($event)
                 }
-              ]
+              ],
+              focusout: _vm.handleFocusOut
             },
             model: {
               value: _vm.inputValue,
@@ -31211,7 +31224,8 @@ var render = function() {
                     name: _vm.name,
                     disabled: _vm.disabled,
                     required: _vm.required,
-                    value: _vm.value
+                    value: _vm.value,
+                    checked: _vm.isSelected
                   },
                   false
                 )
