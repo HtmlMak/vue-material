@@ -8697,6 +8697,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; //
 //
 //
@@ -8928,8 +8930,17 @@ exports.default = {
       return before.concat(after);
     },
     toggleArrayValue: function toggleArrayValue(value) {
-      var index = this.localValue.indexOf(value);
+      var index = -1;
+
+      if ((typeof value === 'undefined' ? 'undefined' : _typeof(value)) === 'object') {
+        index = this.localValue.findIndex(function (x) {
+          return x.id === value.id;
+        });
+      } else {
+        index = this.localValue.indexOf(value);
+      }
       var includes = index > -1;
+
       if (!includes) {
         this.localValue = this.localValue.concat([value]);
       } else {
@@ -8968,7 +8979,12 @@ exports.default = {
       var content = [];
 
       this.localValue.forEach(function (item) {
-        var textContent = _this.MdSelect.items[item];
+        var textContent = null;
+        if ((typeof item === 'undefined' ? 'undefined' : _typeof(item)) === 'object') {
+          textContent = item['name'];
+        } else {
+          textContent = _this.MdSelect.items[item];
+        }
 
         if (textContent) {
           content.push(textContent);
@@ -9845,6 +9861,17 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
 var _MdUuid = __webpack_require__(7);
 
 var _MdUuid2 = _interopRequireDefault(_MdUuid);
@@ -9854,7 +9881,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 exports.default = {
   name: 'MdOption',
   props: {
-    value: [String, Number, Boolean],
+    value: [String, Number, Boolean, Object],
     disabled: Boolean
   },
   inject: {
@@ -9918,6 +9945,8 @@ exports.default = {
       return slot ? slot[0].text.trim() : '';
     },
     setIsSelected: function setIsSelected() {
+      var _this = this;
+
       if (!this.isMultiple) {
         this.isSelected = this.selectValue === this.value;
         return;
@@ -9926,7 +9955,13 @@ exports.default = {
         this.isSelected = false;
         return;
       }
-      this.isSelected = this.selectValue.includes(this.value);
+      if (_typeof(this.value) === 'object') {
+        this.isSelected = Boolean(this.selectValue.filter(function (x) {
+          return x.id === _this.value.id;
+        }).length);
+      } else {
+        this.isSelected = this.selectValue.includes(this.value);
+      }
     },
     setSingleSelection: function setSingleSelection() {
       this.MdSelect.setValue(this.value);
@@ -9954,16 +9989,7 @@ exports.default = {
     this.setItem();
     this.setIsSelected();
   }
-}; //
-//
-//
-//
-//
-//
-//
-//
-//
-//
+};
 
 /***/ }),
 /* 122 */

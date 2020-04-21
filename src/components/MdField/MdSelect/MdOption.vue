@@ -1,9 +1,9 @@
 <template>
   <md-menu-item :class="optionClasses" :disabled="isDisabled" @click="setSelection">
-    <md-checkbox class="md-primary" v-model="isChecked" v-if="MdSelect.multiple" :disabled="isDisabled" />
+    <md-checkbox class="md-primary" v-model="isChecked" v-if="MdSelect.multiple" :disabled="isDisabled"/>
 
     <span class="md-list-item-text" ref="text">
-      <slot />
+      <slot/>
     </span>
   </md-menu-item>
 </template>
@@ -14,7 +14,7 @@
   export default {
     name: 'MdOption',
     props: {
-      value: [String, Number, Boolean],
+      value: [String, Number, Boolean, Object],
       disabled: Boolean
     },
     inject: {
@@ -29,44 +29,44 @@
       isChecked: false
     }),
     computed: {
-      selectValue () {
+      selectValue() {
         return this.MdSelect.modelValue
       },
-      isMultiple () {
+      isMultiple() {
         return this.MdSelect.multiple
       },
-      isDisabled () {
+      isDisabled() {
         return this.MdOptgroup.disabled || this.disabled
       },
-      key () {
+      key() {
         let isSet = (this.value || this.value === 0)
         return isSet ? this.value : this.uniqueId
       },
-      inputLabel () {
+      inputLabel() {
         return this.MdSelect.label
       },
-      optionClasses () {
+      optionClasses() {
         return {
           'md-selected': this.isSelected || this.isChecked
         }
       }
     },
     watch: {
-      selectValue () {
+      selectValue() {
         this.setIsSelected()
       },
-      isChecked (val) {
+      isChecked(val) {
         if (val === this.isSelected) {
           return
         }
         this.setSelection()
       },
-      isSelected (val) {
+      isSelected(val) {
         this.isChecked = val
       }
     },
     methods: {
-      getTextContent () {
+      getTextContent() {
         if (this.$el) {
           return this.$el.textContent.trim()
         }
@@ -75,7 +75,7 @@
 
         return slot ? slot[0].text.trim() : ''
       },
-      setIsSelected () {
+      setIsSelected() {
         if (!this.isMultiple) {
           this.isSelected = this.selectValue === this.value
           return
@@ -84,15 +84,19 @@
           this.isSelected = false
           return
         }
-        this.isSelected = this.selectValue.includes(this.value)
+        if (typeof this.value === 'object') {
+          this.isSelected = Boolean(this.selectValue.filter(x => x.id === this.value.id).length)
+        } else {
+          this.isSelected = this.selectValue.includes(this.value)
+        }
       },
-      setSingleSelection () {
+      setSingleSelection() {
         this.MdSelect.setValue(this.value)
       },
-      setMultipleSelection () {
+      setMultipleSelection() {
         this.MdSelect.setMultipleValue(this.value)
       },
-      setSelection () {
+      setSelection() {
         if (!this.isDisabled) {
           if (this.isMultiple) {
             this.setMultipleSelection()
@@ -101,14 +105,14 @@
           }
         }
       },
-      setItem () {
+      setItem() {
         this.$set(this.MdSelect.items, this.key, this.getTextContent())
       }
     },
-    updated () {
+    updated() {
       this.setItem()
     },
-    created () {
+    created() {
       this.setItem()
       this.setIsSelected()
     }

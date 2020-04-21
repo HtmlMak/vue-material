@@ -23,8 +23,8 @@
       @click="openSelect"
       @keydown.down="openSelect"
       @keydown.enter="openSelect"
-      @keydown.space="openSelect"  />
-    <md-drop-down-icon @click.native="openSelect" />
+      @keydown.space="openSelect"/>
+    <md-drop-down-icon @click.native="openSelect"/>
 
     <keep-alive>
       <md-menu-content
@@ -33,15 +33,15 @@
         :md-content-class="mdClass"
         :style="menuStyles"
         @enter="onMenuEnter">
-        <slot v-if="showSelect" />
+        <slot v-if="showSelect"/>
       </md-menu-content>
     </keep-alive>
 
     <div v-if="!showSelect" v-show="false">
-      <slot />
+      <slot/>
     </div>
 
-    <input class="md-input-fake" v-model="model" :disabled="disabled" readonly tabindex="-1" />
+    <input class="md-input-fake" v-model="model" :disabled="disabled" readonly tabindex="-1"/>
     <select readonly v-model="model" v-bind="attributes" tabindex="-1"></select>
   </md-menu>
 </template>
@@ -77,7 +77,7 @@
       name: String
     },
     inject: ['MdField'],
-    data () {
+    data() {
       return {
         menuStyles: {},
         offset: {
@@ -98,20 +98,20 @@
         }
       }
     },
-    provide () {
+    provide() {
       const MdSelect = this.MdSelect
 
-      return { MdSelect }
+      return {MdSelect}
     },
     computed: {
-      attrs () {
+      attrs() {
         return {
           ...this.$attrs,
           name: this.name,
           id: undefined
         }
       },
-      inputListeners () {
+      inputListeners() {
         return {
           ...this.$listeners,
           input: undefined
@@ -121,7 +121,7 @@
     watch: {
       localValue: {
         immediate: true,
-        handler (val) {
+        handler(val) {
           this.setFieldContent()
           this.MdSelect.modelValue = this.localValue
 
@@ -132,24 +132,24 @@
       },
       multiple: {
         immediate: true,
-        handler (isMultiple) {
+        handler(isMultiple) {
           this.MdSelect.multiple = isMultiple
           this.$nextTick(this.initialLocalValueByDefault)
         }
       }
     },
     methods: {
-      elHasScroll (el) {
+      elHasScroll(el) {
         return el.scrollHeight > el.offsetHeight
       },
-      scrollToSelectedOption (el, menu) {
+      scrollToSelectedOption(el, menu) {
         const top = el.offsetTop
         const elHeight = el.offsetHeight
         const menuHeight = menu.offsetHeight
 
         menu.scrollTop = top - ((menuHeight - elHeight) / 2)
       },
-      setOffsets (target) {
+      setOffsets(target) {
         if (!this.$isServer) {
           const menu = this.$refs.menu.$refs.container
 
@@ -169,7 +169,7 @@
           }
         }
       },
-      onMenuEnter () {
+      onMenuEnter() {
         if (!this.didMount) {
           return
         }
@@ -178,53 +178,62 @@
         this.MdField.focused = true
         this.$emit('md-opened')
       },
-      applyHighlight () {
+      applyHighlight() {
         this.MdField.focused = false
         this.MdField.highlighted = true
         this.$refs.input.$el.focus()
       },
-      onClose () {
+      onClose() {
         this.$emit('md-closed')
         if (this.didMount) {
           this.applyHighlight()
         }
       },
-      onFocus () {
+      onFocus() {
         if (this.didMount) {
           this.applyHighlight()
         }
       },
-      removeHighlight () {
+      removeHighlight() {
         this.MdField.highlighted = false
       },
-      openSelect () {
+      openSelect() {
         if (!this.disabled) {
           this.showSelect = true
         }
       },
-      arrayAccessorRemove (arr, index) {
+      arrayAccessorRemove(arr, index) {
         let before = arr.slice(0, index)
         let after = arr.slice(index + 1, arr.length)
         return before.concat(after)
       },
-      toggleArrayValue (value) {
-        let index = this.localValue.indexOf(value)
+      toggleArrayValue(value) {
+        let index = -1
+
+        if (typeof value === 'object') {
+           index = this.localValue.findIndex(x => {
+            return x.id === value.id
+          })
+        } else {
+          index = this.localValue.indexOf(value)
+        }
         let includes = index > -1
+
         if (!includes) {
           this.localValue = this.localValue.concat([value])
         } else {
           this.localValue = this.arrayAccessorRemove(this.localValue, index)
         }
       },
-      setValue (newValue) {
+      setValue(newValue) {
         this.model = newValue
         this.setFieldValue()
         this.showSelect = false
       },
-      setContent (newLabel) {
+      setContent(newLabel) {
         this.MdSelect.label = newLabel
       },
-      setContentByValue () {
+      setContentByValue() {
         const textContent = this.MdSelect.items[this.localValue]
 
         if (textContent) {
@@ -233,12 +242,12 @@
           this.setContent('')
         }
       },
-      setMultipleValue (value) {
+      setMultipleValue(value) {
         const newValue = value
         this.toggleArrayValue(newValue)
         this.setFieldValue()
       },
-      setMultipleContentByValue () {
+      setMultipleContentByValue() {
         if (!this.localValue) {
           this.initialLocalValueByDefault()
         }
@@ -246,7 +255,12 @@
         let content = []
 
         this.localValue.forEach(item => {
-          const textContent = this.MdSelect.items[item]
+          let textContent = null
+          if (typeof item === 'object') {
+            textContent = item['name']
+          } else {
+            textContent = this.MdSelect.items[item]
+          }
 
           if (textContent) {
             content.push(textContent)
@@ -255,31 +269,31 @@
 
         this.setContent(content.join(', '))
       },
-      setFieldContent () {
+      setFieldContent() {
         if (this.multiple) {
           this.setMultipleContentByValue()
         } else {
           this.setContentByValue()
         }
       },
-      isLocalValueSet () {
+      isLocalValueSet() {
         return this.localValue !== undefined && this.localValue !== null
       },
-      setLocalValueIfMultiple () {
+      setLocalValueIfMultiple() {
         if (this.isLocalValueSet()) {
           this.localValue = [this.localValue]
         } else {
           this.localValue = []
         }
       },
-      setLocalValueIfNotMultiple () {
+      setLocalValueIfNotMultiple() {
         if (this.localValue.length > 0) {
           this.localValue = this.localValue[0]
         } else {
           this.localValue = null
         }
       },
-      initialLocalValueByDefault () {
+      initialLocalValueByDefault() {
         let isArray = Array.isArray(this.localValue)
 
         if (this.multiple && !isArray) {
@@ -288,11 +302,11 @@
           this.setLocalValueIfNotMultiple()
         }
       },
-      emitSelected (value) {
+      emitSelected(value) {
         this.$emit('md-selected', value)
       }
     },
-    mounted () {
+    mounted() {
       this.showSelect = false
       this.setFieldContent()
 
@@ -300,7 +314,7 @@
         this.didMount = true
       })
     },
-    updated () {
+    updated() {
       this.setFieldContent()
     }
   }
@@ -339,6 +353,7 @@
       border: 0;
     }
   }
+
   .md-menu-content.md-select-menu {
     z-index: 111;
     width: 100%;
